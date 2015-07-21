@@ -12,7 +12,7 @@ flatten = (o) ->
 
 module.exports = ->
   @then @inject_flow => # allow all @define to be evaluated before entering here
-    return unless @server.sysctl?.params?
+    return unless typeof @server.sysctl?.params is "object"
     
     @then @log "setting sysctl parameters..."
     for key, value of flatten @server.sysctl.params
