@@ -11,15 +11,16 @@ flatten = (o) ->
   return res
 
 module.exports = ->
-  return unless @server.sysctl?.params
+  @then @inject_flow => # allow all @define to be evaluated before entering here
+    return unless typeof @server.sysctl?.params is "object"
+    
+    @then @log "setting sysctl parameters..."
+    for key, value of flatten @server.sysctl.params
+      # remove any lines referring to the same key; this prevents duplicates
+      @then @execute "sed -i '/^#{key}/d' /etc/sysctl.conf", sudo: true
 
-  @then @log "setting sysctl parameters..."
-  for key, value in flatten @server.sysctl.params
-    # remove any lines referring to the same key; this prevents duplicates
-    @then @execute "sed -i '/^#{key}/d' /etc/sysctl.conf", sudo: true
+      # append key and value
+      @then @execute "echo #{key} = #{value} | sudo tee -a /etc/sysctl.conf >/dev/null"
 
-    # append ip and hostnames
-    @then @execute "echo #{key} = #{value} | sudo tee -a /etc/sysctl.conf >/dev/null"
-
-  # reload sysctl.conf
-  @then @execute "sysctl -q -p /etc/sysctl.conf", sudo: true
+    # reload sysctl.conf
+    @then @execute "sysctl -q -p /etc/sysctl.conf", sudo: true
