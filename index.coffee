@@ -19,7 +19,7 @@ module.exports = ->
       # remove any lines referring to the same key; this prevents duplicates
       @then @execute "sed -i '/^#{key}/d' /etc/sysctl.conf", sudo: true
 
-      # append ip and hostnames
+      # append key and value
       @then @execute "echo #{key} = #{value} | sudo tee -a /etc/sysctl.conf >/dev/null"
 
     # reload sysctl.conf
