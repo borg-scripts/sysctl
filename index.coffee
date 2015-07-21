@@ -12,10 +12,10 @@ flatten = (o) ->
 
 module.exports = ->
   @then @inject_flow => # allow all @define to be evaluated before entering here
-    return unless @server.sysctl?.params
+    return unless @server.sysctl?.params?
     
     @then @log "setting sysctl parameters..."
-    for key, value in flatten @server.sysctl.params
+    for key, value of flatten @server.sysctl.params
       # remove any lines referring to the same key; this prevents duplicates
       @then @execute "sed -i '/^#{key}/d' /etc/sysctl.conf", sudo: true
 
